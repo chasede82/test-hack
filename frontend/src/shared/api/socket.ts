@@ -1,32 +1,58 @@
-import { io, Socket } from "socket.io-client";
+import { Client, IMessage } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import { config } from "@/shared/config";
 
-let socket: Socket | null = null;
+let stompClient: Client | null = null;
 
-export function getSocket(): Socket {
-  if (!socket) {
-    socket = io(config.wsUrl, {
-      autoConnect: false,
-      // 자동 재연결 비활성화 - BE가 STOMP WebSocket을 사용하므로 socket.io 연결 시도를 억제
-      reconnection: false,
-      auth: {
-        token:
-          typeof window !== "undefined"
-            ? localStorage.getItem("access_token")
-            : null,
+export function getStompClient(): Client {
+  if (!stompClient) {
+    stompClient = new Client({
+      webSocketFactory: () => new SockJS(`${config.wsUrl}/ws`),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      debug: (str) => {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[STOMP]", str);
+        }
       },
     });
   }
-  return socket;
+  return stompClient;
 }
 
-export function connectSocket(): void {
-  // STOMP WebSocket과 호환되지 않으므로 연결하지 않음
-  // 채팅 기능은 추후 STOMP 클라이언트로 전환 필요
+export function connectStomp(
+  onConnect?: () => void,
+  onDisconnect?: () => void
+): Client {
+  const client = getStompClient();
+
+  client.onConnect = () => {
+    console.log("[STOMP] Connected");
+    onConnect?.();
+  };
+
+  client.onDisconnect = () => {
+    console.log("[STOMP] Disconnected");
+    onDisconnect?.();
+  };
+
+  client.onStompError = (frame) => {
+    console.error("[STOMP] Error:", frame.headers["message"]);
+    onDisconnect?.();
+  };
+
+  if (!client.active) {
+    client.activate();
+  }
+
+  return client;
 }
 
-export function disconnectSocket(): void {
-  if (socket?.connected) {
-    socket.disconnect();
+export function disconnectStomp(): void {
+  if (stompClient?.active) {
+    stompClient.deactivate();
   }
 }
+
+export type { IMessage };

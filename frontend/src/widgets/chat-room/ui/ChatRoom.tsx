@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useSendMessage } from "@/features/send-message/model/useSendMessage";
 import { useAuth } from "@/features/auth/model/useAuth";
-import { getSocket, connectSocket } from "@/shared/api/socket";
+import { connectStomp, disconnectStomp, getStompClient } from "@/shared/api/socket";
+import { apiInstance } from "@/shared/api/instance";
 import MessageBubble from "@/entities/message/ui/MessageBubble";
 import MessageInput from "@/features/send-message/ui/MessageInput";
 import { Message } from "@/entities/message/model/types";
@@ -33,8 +34,7 @@ function isSameDay(a: string, b: string): boolean {
 }
 
 export default function ChatRoom({ channelId }: ChatRoomProps) {
-  const { messages, addMessage, joinChannel, leaveChannel, setMessages } =
-    useSendMessage();
+  const { messages, addMessage, setMessages, clearMessages } = useSendMessage();
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -64,42 +64,45 @@ export default function ChatRoom({ channelId }: ChatRoomProps) {
   }, []);
 
   useEffect(() => {
-    connectSocket();
-    const socket = getSocket();
+    clearMessages();
+
+    // 기존 메시지 히스토리 로드 (REST API)
+    apiInstance
+      .get(`/channels/${channelId}/messages?page=0&size=50`)
+      .then((res) => {
+        const history: Message[] = res.data.content || [];
+        // 시간순 정렬 (API는 desc로 반환)
+        setMessages([...history].reverse());
+      })
+      .catch(() => {});
+
+    // STOMP 연결
+    const client = connectStomp(
+      () => {
+        setConnectionStatus("connected");
+
+        // 채널 구독
+        client.subscribe(`/topic/channel/${channelId}`, (frame) => {
+          try {
+            const message: Message = JSON.parse(frame.body);
+            addMessage(message);
+          } catch (e) {
+            console.error("[STOMP] Parse error:", e);
+          }
+        });
+      },
+      () => {
+        setConnectionStatus("disconnected");
+      }
+    );
 
     setConnectionStatus("connecting");
 
-    socket.on("connect", () => {
-      setConnectionStatus("connected");
-    });
-
-    socket.on("disconnect", () => {
-      setConnectionStatus("disconnected");
-    });
-
-    socket.on("connect_error", () => {
-      setConnectionStatus("disconnected");
-    });
-
-    joinChannel(channelId);
-
-    socket.on("message:new", (message: Message) => {
-      addMessage(message);
-    });
-
-    socket.on("channel:history", (history: Message[]) => {
-      setMessages(history);
-    });
-
     return () => {
-      leaveChannel(channelId);
-      socket.off("message:new");
-      socket.off("channel:history");
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("connect_error");
+      // 구독 해제 및 연결 종료
+      disconnectStomp();
     };
-  }, [channelId, addMessage, joinChannel, leaveChannel, setMessages]);
+  }, [channelId, addMessage, setMessages, clearMessages]);
 
   // Auto-scroll or show "new message" button
   useEffect(() => {
@@ -137,16 +140,13 @@ export default function ChatRoom({ channelId }: ChatRoomProps) {
       >
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2">
-            <p className="text-lg">채널의 시작입니다 🎉</p>
+            <p className="text-lg">채널의 시작입니다</p>
             <p className="text-sm text-gray-400">
               첫 번째 메시지를 보내보세요!
             </p>
           </div>
         ) : (
           <div>
-            <div className="mb-4 flex items-center justify-center">
-              <p className="text-sm text-gray-500">채널의 시작입니다 🎉</p>
-            </div>
             {messages.map((message, index) => {
               const previous = index > 0 ? messages[index - 1] : null;
               const isGrouped = previous
@@ -156,7 +156,7 @@ export default function ChatRoom({ channelId }: ChatRoomProps) {
                 previous && !isSameDay(message.createdAt, previous.createdAt);
 
               return (
-                <div key={message.id}>
+                <div key={message.id || index}>
                   {showDateSeparator && (
                     <div className="my-4 flex items-center gap-3">
                       <div className="h-px flex-1 bg-gray-200" />
@@ -185,7 +185,7 @@ export default function ChatRoom({ channelId }: ChatRoomProps) {
             onClick={scrollToBottom}
             className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1.5 text-xs font-medium text-white shadow-md hover:bg-blue-700 transition-colors"
           >
-            새 메시지 보기 ↓
+            새 메시지 보기
           </button>
         </div>
       )}

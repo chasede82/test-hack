@@ -2,7 +2,6 @@
 
 import { Message } from "@/entities/message/model/types";
 import { formatRelativeTime } from "@/shared/lib/formatDate";
-import MeetingCardMessage from "@/entities/meeting/ui/MeetingCardMessage";
 
 interface MessageBubbleProps {
   message: Message;
@@ -15,24 +14,12 @@ export default function MessageBubble({
   isOwn,
   isGrouped = false,
 }: MessageBubbleProps) {
-  if (message.type === "meeting_minutes" && message.meetingId && message.meetingCard) {
+  if (message.messageType === "SYSTEM") {
     return (
-      <div className={`flex flex-row gap-2.5 ${isGrouped ? "mt-0.5" : "mt-3"}`}>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-base">
-          🤖
-        </div>
-        <div className="items-start">
-          {!isGrouped && (
-            <p className="mb-1 text-xs font-medium text-gray-600">MeetSync AI</p>
-          )}
-          <MeetingCardMessage
-            meetingId={message.meetingId}
-            data={message.meetingCard}
-          />
-          <p className="mt-1 text-left text-[10px] text-gray-400">
-            {formatRelativeTime(message.createdAt)}
-          </p>
-        </div>
+      <div className="my-2 flex items-center justify-center">
+        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
+          {message.content}
+        </span>
       </div>
     );
   }
@@ -49,7 +36,7 @@ export default function MessageBubble({
             isGrouped ? "invisible" : ""
           }`}
         >
-          {message.senderName.charAt(0)}
+          {message.senderName?.charAt(0) || "?"}
         </div>
       )}
       <div className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"}`}>
@@ -65,13 +52,15 @@ export default function MessageBubble({
         >
           {message.content}
         </div>
-        <p
-          className={`mt-1 text-[10px] text-gray-400 ${
-            isOwn ? "text-right" : "text-left"
-          }`}
-        >
-          {formatRelativeTime(message.createdAt)}
-        </p>
+        {message.createdAt && (
+          <p
+            className={`mt-1 text-[10px] text-gray-400 ${
+              isOwn ? "text-right" : "text-left"
+            }`}
+          >
+            {formatRelativeTime(message.createdAt)}
+          </p>
+        )}
       </div>
     </div>
   );
