@@ -36,11 +36,8 @@ public class MeetingMinutesService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @Value("${ai.openai.api-key:}")
-    private String openaiApiKey;
-
-    @Value("${ai.anthropic.api-key:}")
-    private String anthropicApiKey;
+    @Value("${ai.local.enabled:true}")
+    private boolean localAiEnabled;
 
     @Transactional
     public MeetingMinutesResponse generate(Long meetingId) {
@@ -57,25 +54,17 @@ public class MeetingMinutesService {
             String transcript;
             String minutesJson;
 
-            boolean useAi = openaiApiKey != null && !openaiApiKey.isBlank()
-                    && anthropicApiKey != null && !anthropicApiKey.isBlank();
+            // 로컬 AI (Whisper + Ollama) 사용
+            File audioFile = Paths.get(uploadDir).toAbsolutePath().normalize()
+                    .resolve(meeting.getRecordingUrl()).toFile();
 
-            if (useAi) {
-                // 실제 AI 처리
-                File audioFile = Paths.get(uploadDir).toAbsolutePath().normalize()
-                        .resolve(meeting.getRecordingUrl()).toFile();
-
-                if (!audioFile.exists()) {
-                    throw new BadRequestException("녹음 파일을 찾을 수 없습니다: " + meeting.getRecordingUrl());
-                }
-
-                transcript = aiService.transcribe(audioFile);
-                minutesJson = aiService.generateMinutes(transcript, meeting.getTitle());
-            } else {
-                log.warn("AI API 키가 설정되지 않았습니다. Mock 데이터를 사용합니다.");
-                transcript = generateMockTranscript(meeting.getTitle());
-                minutesJson = generateMockMinutesJson(meeting.getTitle());
+            if (!audioFile.exists()) {
+                throw new BadRequestException("녹음 파일을 찾을 수 없습니다: " + meeting.getRecordingUrl());
             }
+
+            log.info("로컬 AI로 회의록 생성 시작 - file: {}", audioFile.getName());
+            transcript = aiService.transcribe(audioFile);
+            minutesJson = aiService.generateMinutes(transcript, meeting.getTitle());
 
             meeting.setTranscript(transcript);
 
