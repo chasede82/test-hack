@@ -45,12 +45,11 @@ public class ChannelService {
     }
 
     /**
-     * 사용자가 속한 채널 목록 조회
+     * 전체 채널 목록 조회
      */
     @Transactional(readOnly = true)
     public List<ChannelResponse> listForUser(String userEmail) {
-        User user = userService.findByEmail(userEmail);
-        return channelRepository.findByMembersContaining(user).stream()
+        return channelRepository.findAll().stream()
                 .map(ChannelResponse::from)
                 .collect(Collectors.toList());
     }
