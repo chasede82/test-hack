@@ -1,9 +1,6 @@
 export interface Channel {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   memberCount: number;
-  createdAt: string;
-  updatedAt: string;
-  lastMessageAt?: string;
 }

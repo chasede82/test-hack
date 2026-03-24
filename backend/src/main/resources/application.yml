@@ -39,7 +39,7 @@ file:
 
 # CORS 설정
 cors:
-  allowed-origins: http://localhost:3000,http://172.30.1.92:3000
+  allowed-origins: http://localhost:3000,http://172.30.1.92:3000,https://172.30.1.92:3443,https://localhost:3443
 
 # AI API 설정
 ai:
