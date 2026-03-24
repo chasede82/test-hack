@@ -1,31 +1,29 @@
 export interface Meeting {
-  id: string;
+  id: number;
   title: string;
-  channelId: string;
+  channelId: number;
   recordingUrl?: string;
   duration?: number;
-  status: "uploading" | "processing" | "completed" | "failed";
+  status: "UPLOADING" | "PROCESSING" | "COMPLETED" | "FAILED";
   createdAt: string;
-  updatedAt: string;
-  createdBy: string;
+  createdByName: string;
 }
 
-export interface ActionItem {
-  id: string;
+export interface TodoItem {
+  id: number;
   content: string;
-  assigneeId: string;
   assigneeName: string;
-  deadline?: string;
+  meetingTitle: string;
+  dueDate: string | null;
   completed: boolean;
 }
 
 export interface MeetingMinutes {
-  id: string;
-  meetingId: string;
+  id: number;
+  meetingId: number;
   summary: string;
-  keyDecisions: string[];
-  actionItems: ActionItem[];
+  discussions: string; // JSON string
+  decisions: string;   // JSON string
   transcript?: string;
-  participants: string[];
-  generatedAt: string;
+  todos: TodoItem[];
 }

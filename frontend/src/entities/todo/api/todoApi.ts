@@ -1,17 +1,16 @@
 import { apiInstance } from "@/shared/api/instance";
 import { Todo } from "@/entities/todo/model/types";
 
-export async function getTodos(assigneeId?: string): Promise<Todo[]> {
-  const params = assigneeId ? { assigneeId } : {};
-  const { data } = await apiInstance.get<Todo[]>("/todos", { params });
+export async function getTodos(): Promise<Todo[]> {
+  const { data } = await apiInstance.get<Todo[]>("/todos");
   return data;
 }
 
 export async function updateTodo(
   todoId: string,
-  payload: Partial<Pick<Todo, "completed" | "deadline" | "content">>
+  payload: Partial<Pick<Todo, "completed" | "dueDate" | "content">>
 ): Promise<Todo> {
-  const { data } = await apiInstance.patch<Todo>(`/todos/${todoId}`, payload);
+  const { data } = await apiInstance.put<Todo>(`/todos/${todoId}`, payload);
   return data;
 }
 

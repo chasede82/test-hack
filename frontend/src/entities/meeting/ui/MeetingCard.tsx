@@ -11,10 +11,10 @@ interface MeetingCardProps {
 }
 
 const statusMap: Record<Meeting["status"], { label: string; variant: "default" | "success" | "warning" | "error" | "info" }> = {
-  uploading: { label: "업로드 중", variant: "info" },
-  processing: { label: "분석 중", variant: "warning" },
-  completed: { label: "완료", variant: "success" },
-  failed: { label: "실패", variant: "error" },
+  UPLOADING: { label: "업로드 중", variant: "info" },
+  PROCESSING: { label: "분석 중", variant: "warning" },
+  COMPLETED: { label: "완료", variant: "success" },
+  FAILED: { label: "실패", variant: "error" },
 };
 
 export default function MeetingCard({ meeting }: MeetingCardProps) {

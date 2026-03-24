@@ -10,16 +10,18 @@ import com.meetsync.repository.MeetingRepository;
 import com.meetsync.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * 회의록 서비스 - AI 처리 시뮬레이션 및 회의록 관리
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,43 +31,100 @@ public class MeetingMinutesService {
     private final MeetingRepository meetingRepository;
     private final TodoRepository todoRepository;
     private final MeetingService meetingService;
+    private final AiService aiService;
 
-    /**
-     * AI 처리 시뮬레이션 - 회의록 및 할일 자동 생성
-     * 실제 환경에서는 STT + LLM API 호출로 대체
-     */
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    @Value("${ai.openai.api-key:}")
+    private String openaiApiKey;
+
+    @Value("${ai.anthropic.api-key:}")
+    private String anthropicApiKey;
+
     @Transactional
     public MeetingMinutesResponse generate(Long meetingId) {
         Meeting meeting = meetingService.findMeetingById(meetingId);
 
-        // 이미 처리된 회의인지 확인
         if (meeting.getStatus() == MeetingStatus.COMPLETED) {
             throw new BadRequestException("이미 처리가 완료된 회의입니다");
         }
 
-        // 상태를 PROCESSING으로 변경
         meeting.setStatus(MeetingStatus.PROCESSING);
         meetingRepository.save(meeting);
 
         try {
-            // Mock 트랜스크립트 생성
-            String mockTranscript = generateMockTranscript(meeting.getTitle());
-            meeting.setTranscript(mockTranscript);
+            String transcript;
+            String minutesJson;
 
-            // Mock 회의록 생성
+            boolean useAi = openaiApiKey != null && !openaiApiKey.isBlank()
+                    && anthropicApiKey != null && !anthropicApiKey.isBlank();
+
+            if (useAi) {
+                // 실제 AI 처리
+                File audioFile = Paths.get(uploadDir).toAbsolutePath().normalize()
+                        .resolve(meeting.getRecordingUrl()).toFile();
+
+                if (!audioFile.exists()) {
+                    throw new BadRequestException("녹음 파일을 찾을 수 없습니다: " + meeting.getRecordingUrl());
+                }
+
+                transcript = aiService.transcribe(audioFile);
+                minutesJson = aiService.generateMinutes(transcript, meeting.getTitle());
+            } else {
+                log.warn("AI API 키가 설정되지 않았습니다. Mock 데이터를 사용합니다.");
+                transcript = generateMockTranscript(meeting.getTitle());
+                minutesJson = generateMockMinutesJson(meeting.getTitle());
+            }
+
+            meeting.setTranscript(transcript);
+
+            // Parse AI response JSON
+            JSONObject json = new JSONObject(minutesJson);
+
+            String summary = json.getString("summary");
+
+            String discussions = json.getJSONArray("discussions").toString();
+            String decisions = json.getJSONArray("decisions").toString();
+
             MeetingMinutes minutes = MeetingMinutes.builder()
                     .meeting(meeting)
-                    .summary(generateMockSummary(meeting.getTitle()))
-                    .discussions(generateMockDiscussions(meeting.getTitle()))
-                    .decisions(generateMockDecisions(meeting.getTitle()))
+                    .summary(summary)
+                    .discussions(discussions)
+                    .decisions(decisions)
                     .build();
 
             minutes = meetingMinutesRepository.save(minutes);
 
-            // Mock 할일 항목 생성
-            createMockTodos(meeting);
+            // Create todos from AI response
+            JSONArray todosArray = json.getJSONArray("todos");
+            User creator = meeting.getCreatedBy();
 
-            // 처리 완료 상태로 변경
+            for (int i = 0; i < todosArray.length(); i++) {
+                JSONObject todoJson = todosArray.getJSONObject(i);
+                String content = todoJson.getString("content");
+                String assignee = todoJson.optString("assignee", "미정");
+
+                LocalDate dueDate = null;
+                if (!todoJson.isNull("dueDate")) {
+                    try {
+                        dueDate = LocalDate.parse(todoJson.getString("dueDate"));
+                    } catch (Exception e) {
+                        dueDate = LocalDate.now().plusDays(7);
+                    }
+                }
+
+                Todo todo = Todo.builder()
+                        .content(content + (!"미정".equals(assignee) ? " (담당: " + assignee + ")" : ""))
+                        .assignee(creator)
+                        .meeting(meeting)
+                        .dueDate(dueDate != null ? dueDate : LocalDate.now().plusDays(7))
+                        .completed(false)
+                        .build();
+
+                todoRepository.save(todo);
+            }
+
             meeting.setStatus(MeetingStatus.COMPLETED);
             meetingRepository.save(meeting);
 
@@ -74,7 +133,6 @@ public class MeetingMinutesService {
                     .collect(Collectors.toList());
 
             log.info("회의록 생성 완료 - meetingId: {}", meetingId);
-
             return MeetingMinutesResponse.from(minutes, todoResponses);
 
         } catch (Exception e) {
@@ -85,9 +143,6 @@ public class MeetingMinutesService {
         }
     }
 
-    /**
-     * 회의별 회의록 조회
-     */
     @Transactional(readOnly = true)
     public MeetingMinutesResponse getByMeeting(Long meetingId) {
         MeetingMinutes minutes = meetingMinutesRepository.findByMeetingId(meetingId)
@@ -100,7 +155,7 @@ public class MeetingMinutesService {
         return MeetingMinutesResponse.from(minutes, todoResponses);
     }
 
-    // ===== Mock 데이터 생성 메서드 =====
+    // ===== Fallback Mock 데이터 =====
 
     private String generateMockTranscript(String title) {
         return String.format(
@@ -112,56 +167,26 @@ public class MeetingMinutesService {
                 "[07:00] 다음 회의는 수요일에 진행하겠습니다. 수고하셨습니다.", title);
     }
 
-    private String generateMockSummary(String title) {
-        return String.format("'%s' 회의에서는 프로젝트 진행 상황을 점검하고 향후 일정을 조율했습니다. " +
-                "프론트엔드 개발은 순조롭게 진행 중이며, 백엔드 API 완료 후 QA 테스트를 진행할 예정입니다.", title);
-    }
-
-    private String generateMockDiscussions(String title) {
-        return "[" +
-                "{\"topic\": \"프론트엔드 개발 현황\", \"detail\": \"전체 기능의 80% 구현 완료. UI/UX 개선 사항 논의\"}," +
-                "{\"topic\": \"백엔드 API 개발\", \"detail\": \"주요 API 개발 완료. 인증 및 파일 업로드 기능 추가 예정\"}," +
-                "{\"topic\": \"QA 테스트 계획\", \"detail\": \"다음 주 월요일부터 QA 테스트 시작 예정\"}" +
-                "]";
-    }
-
-    private String generateMockDecisions(String title) {
-        return "[" +
-                "{\"decision\": \"백엔드 API 이번 주 금요일까지 완료\"}," +
-                "{\"decision\": \"QA 테스트 다음 주 월요일 시작\"}," +
-                "{\"decision\": \"다음 회의는 수요일 오후 2시 진행\"}" +
-                "]";
-    }
-
-    private void createMockTodos(Meeting meeting) {
-        User creator = meeting.getCreatedBy();
-
-        Todo todo1 = Todo.builder()
-                .content("백엔드 API 개발 완료")
-                .assignee(creator)
-                .meeting(meeting)
-                .dueDate(LocalDate.now().plusDays(5))
-                .completed(false)
-                .build();
-
-        Todo todo2 = Todo.builder()
-                .content("QA 테스트 케이스 작성")
-                .assignee(creator)
-                .meeting(meeting)
-                .dueDate(LocalDate.now().plusDays(7))
-                .completed(false)
-                .build();
-
-        Todo todo3 = Todo.builder()
-                .content("프론트엔드 UI/UX 개선")
-                .assignee(creator)
-                .meeting(meeting)
-                .dueDate(LocalDate.now().plusDays(3))
-                .completed(false)
-                .build();
-
-        todoRepository.save(todo1);
-        todoRepository.save(todo2);
-        todoRepository.save(todo3);
+    private String generateMockMinutesJson(String title) {
+        return String.format("""
+                {
+                  "summary": "'%s' 회의에서는 프로젝트 진행 상황을 점검하고 향후 일정을 조율했습니다. 프론트엔드 개발은 순조롭게 진행 중이며, 백엔드 API 완료 후 QA 테스트를 진행할 예정입니다.",
+                  "discussions": [
+                    {"topic": "프론트엔드 개발 현황", "detail": "전체 기능의 80%% 구현 완료. UI/UX 개선 사항 논의"},
+                    {"topic": "백엔드 API 개발", "detail": "주요 API 개발 완료. 인증 및 파일 업로드 기능 추가 예정"},
+                    {"topic": "QA 테스트 계획", "detail": "다음 주 월요일부터 QA 테스트 시작 예정"}
+                  ],
+                  "decisions": [
+                    {"decision": "백엔드 API 이번 주 금요일까지 완료"},
+                    {"decision": "QA 테스트 다음 주 월요일 시작"},
+                    {"decision": "다음 회의는 수요일 오후 2시 진행"}
+                  ],
+                  "todos": [
+                    {"content": "백엔드 API 개발 완료", "assignee": "미정", "dueDate": null},
+                    {"content": "QA 테스트 케이스 작성", "assignee": "미정", "dueDate": null},
+                    {"content": "프론트엔드 UI/UX 개선", "assignee": "미정", "dueDate": null}
+                  ]
+                }
+                """, title);
     }
 }

@@ -19,6 +19,7 @@ public class MeetingMinutesResponse {
     private String summary;
     private String discussions;
     private String decisions;
+    private String transcript;
     private List<TodoResponse> todos;
 
     public static MeetingMinutesResponse from(MeetingMinutes minutes, List<TodoResponse> todos) {
@@ -28,6 +29,7 @@ public class MeetingMinutesResponse {
                 .summary(minutes.getSummary())
                 .discussions(minutes.getDiscussions())
                 .decisions(minutes.getDecisions())
+                .transcript(minutes.getMeeting().getTranscript())
                 .todos(todos)
                 .build();
     }

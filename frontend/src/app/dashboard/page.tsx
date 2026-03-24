@@ -44,7 +44,7 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <TodoDashboard assigneeId={user?.id} />
+            <TodoDashboard />
 
             <div className="rounded-2xl border border-gray-200 bg-white p-6">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">

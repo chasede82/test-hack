@@ -10,9 +10,9 @@ interface TodoActionsState {
   todos: Todo[];
   isLoading: boolean;
   error: string | null;
-  fetchTodos: (assigneeId?: string) => Promise<void>;
+  fetchTodos: () => Promise<void>;
   toggleComplete: (todoId: string, completed: boolean) => Promise<void>;
-  updateDeadline: (todoId: string, deadline: string) => Promise<void>;
+  updateDeadline: (todoId: string, dueDate: string) => Promise<void>;
   deleteTodo: (todoId: string) => Promise<void>;
 }
 
@@ -21,10 +21,10 @@ export const useTodoActions = create<TodoActionsState>((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchTodos: async (assigneeId) => {
+  fetchTodos: async () => {
     set({ isLoading: true, error: null });
     try {
-      const todos = await getTodos(assigneeId);
+      const todos = await getTodos();
       set({ todos, isLoading: false });
     } catch {
       set({ error: "할 일 목록을 불러오지 못했습니다.", isLoading: false });
@@ -34,7 +34,7 @@ export const useTodoActions = create<TodoActionsState>((set, get) => ({
   toggleComplete: async (todoId, completed) => {
     const prev = get().todos;
     set({
-      todos: prev.map((t) => (t.id === todoId ? { ...t, completed } : t)),
+      todos: prev.map((t) => (String(t.id) === todoId ? { ...t, completed } : t)),
     });
     try {
       await updateTodo(todoId, { completed });
@@ -43,11 +43,11 @@ export const useTodoActions = create<TodoActionsState>((set, get) => ({
     }
   },
 
-  updateDeadline: async (todoId, deadline) => {
+  updateDeadline: async (todoId, dueDate) => {
     try {
-      const updated = await updateTodo(todoId, { deadline });
+      const updated = await updateTodo(todoId, { dueDate });
       set({
-        todos: get().todos.map((t) => (t.id === todoId ? updated : t)),
+        todos: get().todos.map((t) => (String(t.id) === todoId ? updated : t)),
       });
     } catch {
       set({ error: "마감일 변경에 실패했습니다." });
@@ -56,7 +56,7 @@ export const useTodoActions = create<TodoActionsState>((set, get) => ({
 
   deleteTodo: async (todoId) => {
     const prev = get().todos;
-    set({ todos: prev.filter((t) => t.id !== todoId) });
+    set({ todos: prev.filter((t) => String(t.id) !== todoId) });
     try {
       await deleteTodoApi(todoId);
     } catch {

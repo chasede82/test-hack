@@ -14,15 +14,17 @@ export default function TodoItem({ todo }: TodoItemProps) {
   const { toggleComplete, updateDeadline, deleteTodo } = useTodoActions();
   const [isEditingDeadline, setIsEditingDeadline] = useState(false);
   const [deadlineValue, setDeadlineValue] = useState(
-    todo.deadline?.split("T")[0] || ""
+    todo.dueDate?.split("T")[0] || ""
   );
 
+  const todoId = String(todo.id);
+
   const isOverdue =
-    todo.deadline && !todo.completed && new Date(todo.deadline) < new Date();
+    todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date();
 
   const handleDeadlineSave = () => {
     if (deadlineValue) {
-      updateDeadline(todo.id, new Date(deadlineValue).toISOString());
+      updateDeadline(todoId, new Date(deadlineValue).toISOString());
     }
     setIsEditingDeadline(false);
   };
@@ -37,7 +39,7 @@ export default function TodoItem({ todo }: TodoItemProps) {
     >
       <div className="flex items-start gap-3">
         <button
-          onClick={() => toggleComplete(todo.id, !todo.completed)}
+          onClick={() => toggleComplete(todoId, !todo.completed)}
           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
             todo.completed
               ? "border-green-500 bg-green-500 text-white"
@@ -85,13 +87,13 @@ export default function TodoItem({ todo }: TodoItemProps) {
                 </button>
               </div>
             ) : (
-              todo.deadline && (
+              todo.dueDate && (
                 <button
                   onClick={() => setIsEditingDeadline(true)}
                   className="hover:underline"
                 >
                   <Badge
-                    label={formatDate(todo.deadline)}
+                    label={formatDate(todo.dueDate)}
                     variant={isOverdue ? "error" : "default"}
                   />
                 </button>
@@ -101,7 +103,7 @@ export default function TodoItem({ todo }: TodoItemProps) {
         </div>
 
         <button
-          onClick={() => deleteTodo(todo.id)}
+          onClick={() => deleteTodo(todoId)}
           className="rounded p-1 text-gray-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
         >
           <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

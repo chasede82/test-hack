@@ -6,12 +6,14 @@ import Button from "@/shared/ui/Button";
 import Input from "@/shared/ui/Input";
 import ProgressBar from "@/shared/ui/ProgressBar";
 import { useUploadRecording } from "@/features/upload-recording/model/useUploadRecording";
+import { UploadResult } from "@/features/upload-recording/api/uploadRecording";
 
 interface UploadRecordingModalProps {
   channelId: string;
+  onComplete?: (result: UploadResult) => void;
 }
 
-export default function UploadRecordingModal({ channelId }: UploadRecordingModalProps) {
+export default function UploadRecordingModal({ channelId, onComplete }: UploadRecordingModalProps) {
   const { isModalOpen, closeModal, upload, isUploading, progress, error } =
     useUploadRecording();
   const [title, setTitle] = useState("");
@@ -35,9 +37,12 @@ export default function UploadRecordingModal({ channelId }: UploadRecordingModal
 
   const handleSubmit = async () => {
     if (!file || !title.trim()) return;
-    await upload(channelId, title, file);
-    setTitle("");
-    setFile(null);
+    const result = await upload(channelId, title, file);
+    if (result) {
+      setTitle("");
+      setFile(null);
+      onComplete?.(result);
+    }
   };
 
   return (
@@ -104,7 +109,14 @@ export default function UploadRecordingModal({ channelId }: UploadRecordingModal
         </div>
 
         {isUploading && (
-          <ProgressBar progress={progress} label="업로드 진행률" />
+          <div>
+            <ProgressBar progress={progress} label="업로드 진행률" />
+            {progress === 100 && (
+              <p className="mt-2 text-center text-sm text-blue-600 animate-pulse">
+                AI가 회의록을 생성하고 있습니다...
+              </p>
+            )}
+          </div>
         )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -118,7 +130,7 @@ export default function UploadRecordingModal({ channelId }: UploadRecordingModal
             isLoading={isUploading}
             disabled={!file || !title.trim()}
           >
-            업로드
+            업로드 및 AI 분석
           </Button>
         </div>
       </div>

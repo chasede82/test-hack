@@ -10,11 +10,11 @@ export async function login(
   email: string,
   password: string
 ): Promise<{ accessToken: string; user: User }> {
-  const { data } = await apiInstance.post<{ accessToken: string; user: User }>(
+  const { data } = await apiInstance.post<{ token: string; tokenType: string; user: User }>(
     "/auth/login",
     { email, password }
   );
-  return data;
+  return { accessToken: data.token, user: data.user };
 }
 
 export async function getUsers(): Promise<User[]> {

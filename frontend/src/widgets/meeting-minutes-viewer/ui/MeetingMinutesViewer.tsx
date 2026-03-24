@@ -4,10 +4,26 @@ import { useEffect, useState } from "react";
 import { MeetingMinutes } from "@/entities/meeting/model/types";
 import { getMeetingMinutes } from "@/entities/meeting/api/meetingApi";
 import Badge from "@/shared/ui/Badge";
-import { formatDateTime } from "@/shared/lib/formatDate";
 
 interface MeetingMinutesViewerProps {
   meetingId: string;
+}
+
+interface DiscussionItem {
+  topic: string;
+  detail: string;
+}
+
+interface DecisionItem {
+  decision: string;
+}
+
+function parseJsonSafe<T>(jsonStr: string, fallback: T): T {
+  try {
+    return JSON.parse(jsonStr);
+  } catch {
+    return fallback;
+  }
 }
 
 export default function MeetingMinutesViewer({
@@ -54,24 +70,15 @@ export default function MeetingMinutesViewer({
     );
   }
 
+  const discussions = parseJsonSafe<DiscussionItem[]>(minutes.discussions, []);
+  const decisions = parseJsonSafe<DecisionItem[]>(minutes.decisions, []);
+
   return (
     <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6">
       <div>
         <div className="mb-1 flex items-center gap-2">
           <h2 className="text-lg font-semibold text-gray-900">AI 회의록</h2>
           <Badge label="AI 생성" variant="info" />
-        </div>
-        <p className="text-xs text-gray-400">
-          생성일: {formatDateTime(minutes.generatedAt)}
-        </p>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">참석자</h3>
-        <div className="flex flex-wrap gap-1.5">
-          {minutes.participants.map((name) => (
-            <Badge key={name} label={name} />
-          ))}
         </div>
       </div>
 
@@ -82,13 +89,32 @@ export default function MeetingMinutesViewer({
         </p>
       </div>
 
-      {minutes.keyDecisions.length > 0 && (
+      {discussions.length > 0 && (
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-gray-700">
+            논의 사항
+          </h3>
+          <div className="space-y-3">
+            {discussions.map((item, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-gray-100 bg-gray-50 p-3"
+              >
+                <p className="text-sm font-medium text-gray-800">{item.topic}</p>
+                <p className="mt-1 text-sm text-gray-600">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {decisions.length > 0 && (
         <div>
           <h3 className="mb-2 text-sm font-semibold text-gray-700">
             주요 결정사항
           </h3>
           <ul className="space-y-1.5">
-            {minutes.keyDecisions.map((decision, i) => (
+            {decisions.map((item, i) => (
               <li
                 key={i}
                 className="flex items-start gap-2 text-sm text-gray-600"
@@ -96,39 +122,39 @@ export default function MeetingMinutesViewer({
                 <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-medium text-blue-700">
                   {i + 1}
                 </span>
-                {decision}
+                {item.decision}
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {minutes.actionItems.length > 0 && (
+      {minutes.todos && minutes.todos.length > 0 && (
         <div>
           <h3 className="mb-2 text-sm font-semibold text-gray-700">
-            액션 아이템
+            할 일 목록
           </h3>
           <div className="space-y-2">
-            {minutes.actionItems.map((item) => (
+            {minutes.todos.map((todo) => (
               <div
-                key={item.id}
+                key={todo.id}
                 className="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
               >
                 <div
                   className={`mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 ${
-                    item.completed
+                    todo.completed
                       ? "border-green-500 bg-green-500"
                       : "border-gray-300"
                   }`}
                 />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-800">{item.content}</p>
+                  <p className="text-sm text-gray-800">{todo.content}</p>
                   <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                    <span>담당: {item.assigneeName}</span>
-                    {item.deadline && (
+                    <span>담당: {todo.assigneeName}</span>
+                    {todo.dueDate && (
                       <>
                         <span className="text-gray-300">|</span>
-                        <span>마감: {formatDateTime(item.deadline)}</span>
+                        <span>마감: {todo.dueDate}</span>
                       </>
                     )}
                   </div>

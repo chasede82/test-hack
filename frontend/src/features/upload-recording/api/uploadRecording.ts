@@ -1,29 +1,48 @@
 import { apiInstance } from "@/shared/api/instance";
-import { Meeting } from "@/entities/meeting/model/types";
+
+export interface UploadResult {
+  id: number;
+  meetingId: number;
+  summary: string;
+  discussions: string;
+  decisions: string;
+  transcript: string;
+  todos: Array<{
+    id: number;
+    content: string;
+    assigneeName: string;
+    meetingTitle: string;
+    dueDate: string;
+    completed: boolean;
+  }>;
+}
 
 export async function uploadRecording(
   channelId: string,
   title: string,
   file: File,
   onProgress: (progress: number) => void
-): Promise<Meeting> {
+): Promise<UploadResult> {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("channelId", channelId);
   formData.append("title", title);
 
-  const { data } = await apiInstance.post<Meeting>("/meetings/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    timeout: 600000,
-    onUploadProgress: (progressEvent) => {
-      if (progressEvent.total) {
-        const percent = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        onProgress(percent);
-      }
-    },
-  });
+  const { data } = await apiInstance.post<UploadResult>(
+    `/channels/${channelId}/meetings/upload`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 600000,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          onProgress(percent);
+        }
+      },
+    }
+  );
 
   return data;
 }

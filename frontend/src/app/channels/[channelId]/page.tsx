@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Header from "@/widgets/header/ui/Header";
 import Sidebar from "@/widgets/sidebar/ui/Sidebar";
 import ChatRoom from "@/widgets/chat-room/ui/ChatRoom";
@@ -17,6 +17,7 @@ import Button from "@/shared/ui/Button";
 
 export default function ChannelDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const channelId = params.channelId as string;
   const [channel, setChannel] = useState<Channel | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -124,7 +125,12 @@ export default function ChannelDetailPage() {
         </main>
       </div>
 
-      <UploadRecordingModal channelId={channelId} />
+      <UploadRecordingModal
+        channelId={channelId}
+        onComplete={(result) => {
+          router.push(`/results/${result.meetingId}`);
+        }}
+      />
     </div>
   );
 }

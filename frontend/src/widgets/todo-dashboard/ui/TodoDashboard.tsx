@@ -4,16 +4,12 @@ import { useEffect } from "react";
 import { useTodoActions } from "@/features/manage-todo/model/useTodoActions";
 import TodoItem from "@/features/manage-todo/ui/TodoItem";
 
-interface TodoDashboardProps {
-  assigneeId?: string;
-}
-
-export default function TodoDashboard({ assigneeId }: TodoDashboardProps) {
+export default function TodoDashboard() {
   const { todos, isLoading, error, fetchTodos } = useTodoActions();
 
   useEffect(() => {
-    fetchTodos(assigneeId);
-  }, [assigneeId, fetchTodos]);
+    fetchTodos();
+  }, [fetchTodos]);
 
   const pendingTodos = todos.filter((t) => !t.completed);
   const completedTodos = todos.filter((t) => t.completed);

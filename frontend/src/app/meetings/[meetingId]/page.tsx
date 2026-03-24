@@ -15,10 +15,10 @@ const statusMap: Record<
   Meeting["status"],
   { label: string; variant: "default" | "success" | "warning" | "error" | "info" }
 > = {
-  uploading: { label: "업로드 중", variant: "info" },
-  processing: { label: "AI 분석 중", variant: "warning" },
-  completed: { label: "완료", variant: "success" },
-  failed: { label: "실패", variant: "error" },
+  UPLOADING: { label: "업로드 중", variant: "info" },
+  PROCESSING: { label: "AI 분석 중", variant: "warning" },
+  COMPLETED: { label: "완료", variant: "success" },
+  FAILED: { label: "실패", variant: "error" },
 };
 
 export default function MeetingDetailPage() {
@@ -76,7 +76,7 @@ export default function MeetingDetailPage() {
                   </div>
                 </div>
 
-                {meeting.status === "processing" && (
+                {meeting.status === "PROCESSING" && (
                   <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
                     <div className="mb-2 text-2xl">🔄</div>
                     <p className="text-sm font-medium text-yellow-800">
@@ -88,11 +88,11 @@ export default function MeetingDetailPage() {
                   </div>
                 )}
 
-                {meeting.status === "completed" && (
+                {meeting.status === "COMPLETED" && (
                   <MeetingMinutesViewer meetingId={meetingId} />
                 )}
 
-                {meeting.status === "failed" && (
+                {meeting.status === "FAILED" && (
                   <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
                     <p className="text-sm font-medium text-red-800">
                       회의록 생성에 실패했습니다
