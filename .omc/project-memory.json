@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774329330917,
+  "projectRoot": "/Users/eunkyungson/test-hack",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1774329330912,
+      "keyFiles": [
+        "build.gradle.kts",
+        "settings.gradle.kts"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1774329330912,
+      "keyFiles": [
+        "PRD-collaboration-tool.md"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1774329330912,
+      "keyFiles": [
+        "next-env.d.ts",
+        "next.config.ts",
+        "package.json",
+        "pnpm-lock.yaml",
+        "postcss.config.mjs"
+      ]
+    },
+    "backend/src": {
+      "path": "backend/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1774329330912,
+      "keyFiles": []
+    },
+    "frontend/node_modules": {
+      "path": "frontend/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 2,
+      "lastAccessed": 1774329330913,
+      "keyFiles": []
+    },
+    "frontend/src": {
+      "path": "frontend/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1774329330913,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
