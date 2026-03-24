@@ -1,6 +1,11 @@
 server:
   port: 8081
   address: 0.0.0.0
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: meetsync
 
 spring:
   datasource:
@@ -39,7 +44,7 @@ file:
 
 # CORS 설정
 cors:
-  allowed-origins: http://localhost:3000,http://172.30.1.92:3000,https://172.30.1.92:3443,https://localhost:3443
+  allowed-origins: http://localhost:3000,http://localhost:3001,http://172.30.1.92:3000,http://172.30.1.92:3001,https://172.30.1.92:3000,https://172.30.1.92:3001,https://172.30.1.92:3443,https://localhost:3443,https://localhost:3000,https://localhost:3001
 
 # AI API 설정
 ai:

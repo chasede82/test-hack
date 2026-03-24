@@ -4,10 +4,20 @@ import { config } from "@/shared/config";
 
 let stompClient: Client | null = null;
 
+function getToken(): string {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("access_token") || "";
+  }
+  return "";
+}
+
 export function getStompClient(): Client {
   if (!stompClient) {
     stompClient = new Client({
       webSocketFactory: () => new SockJS(`${config.wsUrl}/ws`),
+      connectHeaders: {
+        Authorization: `Bearer ${getToken()}`,
+      },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -26,6 +36,11 @@ export function connectStomp(
   onDisconnect?: () => void
 ): Client {
   const client = getStompClient();
+
+  // 연결 시마다 최신 토큰으로 갱신
+  client.connectHeaders = {
+    Authorization: `Bearer ${getToken()}`,
+  };
 
   client.onConnect = () => {
     console.log("[STOMP] Connected");
