@@ -82,6 +82,21 @@ public class ChannelService {
     }
 
     /**
+     * 채널 삭제 - 생성자만 삭제 가능
+     */
+    @Transactional
+    public void delete(Long channelId, String userEmail) {
+        Channel channel = findChannelById(channelId);
+        User user = userService.findByEmail(userEmail);
+
+        if (!channel.getCreatedBy().getId().equals(user.getId())) {
+            throw new BadRequestException("채널 생성자만 삭제할 수 있습니다");
+        }
+
+        channelRepository.delete(channel);
+    }
+
+    /**
      * 채널 엔티티 조회 (내부 사용)
      */
     public Channel findChannelById(Long id) {

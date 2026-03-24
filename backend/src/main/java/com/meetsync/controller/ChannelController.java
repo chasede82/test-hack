@@ -55,6 +55,17 @@ public class ChannelController {
     }
 
     /**
+     * 채널 삭제
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        channelService.delete(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * 채널에 멤버 추가
      */
     @PostMapping("/{id}/members")

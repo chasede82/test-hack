@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import ChannelItem from "@/entities/channel/ui/ChannelItem";
 import { Channel } from "@/entities/channel/model/types";
-import { getChannels } from "@/entities/channel/api/channelApi";
+import { getChannels, deleteChannel } from "@/entities/channel/api/channelApi";
 import CreateChannelModal from "@/features/create-channel/ui/CreateChannelModal";
 
 export default function Sidebar() {
@@ -12,20 +12,35 @@ export default function Sidebar() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const fetchChannels = async () => {
+    try {
+      const data = await getChannels();
+      setChannels(data);
+    } catch {
+      // silently fail
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchChannels = async () => {
-      try {
-        const data = await getChannels();
-        setChannels(data);
-      } catch {
-        // silently fail
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchChannels();
   }, []);
+
+  const handleDelete = async (channelId: string) => {
+    try {
+      await deleteChannel(channelId);
+      setChannels((prev) => prev.filter((c) => String(c.id) !== channelId));
+      // 삭제한 채널에 있었으면 대시보드로 이동
+      if (pathname.includes(`/channels/${channelId}`)) {
+        router.push("/dashboard");
+      }
+    } catch {
+      alert("채널 삭제에 실패했습니다.");
+    }
+  };
 
   const currentChannelId = pathname.match(/\/channels\/([^/]+)/)?.[1];
 
@@ -68,14 +83,15 @@ export default function Sidebar() {
               <ChannelItem
                 key={channel.id}
                 channel={channel}
-                isActive={channel.id === currentChannelId}
+                isActive={String(channel.id) === currentChannelId}
+                onDelete={handleDelete}
               />
             ))}
           </div>
         )}
       </div>
     </aside>
-    <CreateChannelModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    <CreateChannelModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); fetchChannels(); }} />
     </>
   );
 }
