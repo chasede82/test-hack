@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import ChannelItem from "@/entities/channel/ui/ChannelItem";
 import { Channel } from "@/entities/channel/model/types";
 import { getChannels } from "@/entities/channel/api/channelApi";
+import CreateChannelModal from "@/features/create-channel/ui/CreateChannelModal";
 
 export default function Sidebar() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -28,10 +30,14 @@ export default function Sidebar() {
   const currentChannelId = pathname.match(/\/channels\/([^/]+)/)?.[1];
 
   return (
+    <>
     <aside className="flex h-full w-64 shrink-0 flex-col border-r border-gray-200 bg-gray-50">
       <div className="flex items-center justify-between p-4">
         <h2 className="text-sm font-semibold text-gray-900">채널 목록</h2>
-        <button className="rounded-lg p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="rounded-lg p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors"
+        >
           <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"
@@ -69,5 +75,7 @@ export default function Sidebar() {
         )}
       </div>
     </aside>
+    <CreateChannelModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 }

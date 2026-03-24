@@ -1,4 +1,12 @@
-export type MessageType = "text" | "meeting_minutes";
+export type MessageType = "text" | "meeting_minutes" | "system";
+
+export interface MeetingCardData {
+  title: string;
+  summary: string;
+  decisionCount: number;
+  todoCount: number;
+  status: "processing_stt" | "processing_ai" | "completed" | "failed";
+}
 
 export interface Message {
   id: string;
@@ -9,5 +17,6 @@ export interface Message {
   content: string;
   type: MessageType;
   meetingId?: string;
+  meetingCard?: MeetingCardData;
   createdAt: string;
 }

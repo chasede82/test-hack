@@ -87,21 +87,303 @@
   },
   "hotPaths": [
     {
+      "path": "frontend/src/widgets/sidebar/ui/Sidebar.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1774330028805,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/message/ui/MessageBubble.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1774330063184,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/channels/page.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1774330012276,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/message/model/types.ts",
+      "accessCount": 6,
+      "lastAccessed": 1774330062874,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/send-message/ui/MessageInput.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1774329999658,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/widgets/chat-room/ui/ChatRoom.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1774330039808,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/ui/Modal.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1774329958274,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/channel/api/channelApi.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774329963045,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/dashboard/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774329834130,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/channels/[channelId]/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774329885962,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/send-message/model/useSendMessage.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774329903721,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/api/socket.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774329904117,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/channel/ui/ChannelItem.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774329905493,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/ui/Button.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774329958683,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/ui/Input.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774329958828,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/lib/formatDate.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774329980440,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/meeting/ui/MeetingCardMessage.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774330063053,
+      "type": "file"
+    },
+    {
       "path": "frontend/src/pages/dashboard/index.ts",
       "accessCount": 1,
       "lastAccessed": 1774329564383,
       "type": "file"
     },
     {
-      "path": "frontend/src/app/dashboard/page.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1774329564527,
-      "type": "file"
-    },
-    {
       "path": "frontend/src/pages/channel-detail/index.ts",
       "accessCount": 1,
       "lastAccessed": 1774329585487,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-06-realtime-chat.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329801953,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-01-file-upload.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329802372,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-02-ai-meeting-minutes.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329802810,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-03-todo-extraction.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329803266,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-04-todo-dashboard.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329803711,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-05-todo-management.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329804388,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-07-meeting-card.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329804642,
+      "type": "file"
+    },
+    {
+      "path": "docs/feature-specs/F-08-inapp-recording.md",
+      "accessCount": 1,
+      "lastAccessed": 1774329805207,
+      "type": "file"
+    },
+    {
+      "path": "frontend/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1774329820805,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329820925,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/api/instance.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329821189,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/shared/config/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329823745,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/providers.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329823934,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/auth/model/useAuth.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329824146,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/auth/ui/LoginForm.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329824362,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/channel/model/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329824789,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/user/model/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329827178,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/user/api/userApi.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329827607,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/meeting/api/meetingApi.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329830469,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/meeting/model/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329830529,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/todo/model/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329831026,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/record-audio/model/useAudioRecorder.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329831224,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/upload-recording/model/useUploadRecording.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329837756,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329837990,
+      "type": "file"
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1774329838102,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/upload-recording/api/uploadRecording.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329840313,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/entities/todo/api/todoApi.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329840563,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/widgets/todo-dashboard/ui/TodoDashboard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329840783,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/login/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329840985,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/manage-todo/model/useTodoActions.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774329843344,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/features/create-channel/ui/CreateChannelModal.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774329977171,
       "type": "file"
     }
   ],

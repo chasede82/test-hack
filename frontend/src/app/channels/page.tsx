@@ -6,10 +6,12 @@ import Sidebar from "@/widgets/sidebar/ui/Sidebar";
 import ChannelItem from "@/entities/channel/ui/ChannelItem";
 import { Channel } from "@/entities/channel/model/types";
 import { getChannels } from "@/entities/channel/api/channelApi";
+import CreateChannelModal from "@/features/create-channel/ui/CreateChannelModal";
 
 export default function ChannelsPage() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -39,7 +41,7 @@ export default function ChannelsPage() {
                   팀 채널에서 회의록을 공유하고 소통하세요.
                 </p>
               </div>
-              <button className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+              <button onClick={() => setIsModalOpen(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                 <svg
                   className="h-4 w-4"
                   viewBox="0 0 20 20"
@@ -81,6 +83,7 @@ export default function ChannelsPage() {
           </div>
         </main>
       </div>
+      <CreateChannelModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }

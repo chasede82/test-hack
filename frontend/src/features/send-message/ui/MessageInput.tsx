@@ -8,12 +8,30 @@ interface MessageInputProps {
 }
 
 const EMOJI_LIST = ["😀", "😂", "😍", "🤔", "👍", "👎", "🎉", "🔥", "💯", "❤️", "👏", "🙏"];
+const MAX_LENGTH = 2000;
+const CHAR_COUNT_THRESHOLD = 1500;
 
 export default function MessageInput({ channelId }: MessageInputProps) {
   const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const { sendTextMessage } = useSendMessage();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustHeight = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const lineHeight = 20;
+    const minHeight = lineHeight * 1;
+    const maxHeight = lineHeight * 5;
+    el.style.height = Math.min(Math.max(el.scrollHeight, minHeight), maxHeight) + "px";
+  };
+
+  const resetHeight = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+  };
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -21,19 +39,35 @@ export default function MessageInput({ channelId }: MessageInputProps) {
     sendTextMessage(channelId, trimmed);
     setText("");
     setShowEmoji(false);
+    resetHeight();
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  const insertEmoji = (emoji: string) => {
-    setText((prev) => prev + emoji);
-    inputRef.current?.focus();
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length > MAX_LENGTH) return;
+    setText(value);
+    adjustHeight();
   };
+
+  const insertEmoji = (emoji: string) => {
+    if (text.length >= MAX_LENGTH) return;
+    setText((prev) => {
+      const next = prev + emoji;
+      return next.length > MAX_LENGTH ? prev : next;
+    });
+    textareaRef.current?.focus();
+    setTimeout(adjustHeight, 0);
+  };
+
+  const showCharCount = text.length >= CHAR_COUNT_THRESHOLD;
+  const remaining = MAX_LENGTH - text.length;
 
   return (
     <div className="relative border-t border-gray-200 bg-white p-3">
@@ -52,7 +86,12 @@ export default function MessageInput({ channelId }: MessageInputProps) {
           </div>
         </div>
       )}
-      <div className="flex items-center gap-2">
+      {showCharCount && (
+        <div className="mb-1 text-right text-xs text-gray-400">
+          {remaining.toLocaleString()} / {MAX_LENGTH.toLocaleString()}
+        </div>
+      )}
+      <div className="flex items-end gap-2">
         <button
           onClick={() => setShowEmoji(!showEmoji)}
           className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
@@ -65,14 +104,15 @@ export default function MessageInput({ channelId }: MessageInputProps) {
             />
           </svg>
         </button>
-        <input
-          ref={inputRef}
-          type="text"
+        <textarea
+          ref={textareaRef}
+          rows={1}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="flex-1 resize-none overflow-y-auto rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          style={{ minHeight: "36px", maxHeight: "100px", lineHeight: "20px" }}
         />
         <button
           onClick={handleSend}

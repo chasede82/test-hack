@@ -17,6 +17,8 @@ frontend/next-env.d.ts
 backend/build/
 backend/.gradle/
 backend/gradle/wrapper/gradle-wrapper.jar
+backend/gradlew
+backend/gradlew.bat
 
 # IDE
 .idea/
