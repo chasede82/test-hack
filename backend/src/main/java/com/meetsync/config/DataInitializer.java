@@ -43,6 +43,20 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
         user2 = userRepository.save(user2);
 
+        User test1 = User.builder()
+                .email("test1@test.com")
+                .name("테스트1")
+                .password(passwordEncoder.encode("password123"))
+                .build();
+        test1 = userRepository.save(test1);
+
+        User test2 = User.builder()
+                .email("test2@test.com")
+                .name("테스트2")
+                .password(passwordEncoder.encode("password123"))
+                .build();
+        test2 = userRepository.save(test2);
+
         // 기본 채널 생성
         Channel devChannel = Channel.builder()
                 .name("개발팀")
@@ -52,6 +66,8 @@ public class DataInitializer implements CommandLineRunner {
         devChannel.getMembers().add(admin);
         devChannel.getMembers().add(user1);
         devChannel.getMembers().add(user2);
+        devChannel.getMembers().add(test1);
+        devChannel.getMembers().add(test2);
         channelRepository.save(devChannel);
 
         Channel generalChannel = Channel.builder()
@@ -67,6 +83,8 @@ public class DataInitializer implements CommandLineRunner {
         log.info("계정 1: admin@meetsync.com / admin123 (관리자)");
         log.info("계정 2: test@test.com / password123 (테스트유저)");
         log.info("계정 3: dev@meetsync.com / dev123 (개발자)");
+        log.info("계정 4: test1@test.com / password123 (테스트1)");
+        log.info("계정 5: test2@test.com / password123 (테스트2)");
         log.info("채널: 개발팀, 일반");
     }
 }
