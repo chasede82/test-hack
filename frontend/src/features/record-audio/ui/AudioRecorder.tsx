@@ -91,16 +91,25 @@ export default function AudioRecorder({ onRecordingComplete }: AudioRecorderProp
         )}
 
         {audioBlob && !isRecording && (
-          <>
+          <div className="flex flex-col gap-3 w-full">
             <audio
               src={URL.createObjectURL(audioBlob)}
               controls
-              className="h-10"
+              className="h-10 w-full"
             />
-            <Button variant="ghost" onClick={reset} size="sm">
-              다시 녹음
-            </Button>
-          </>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => {
+                  if (onRecordingComplete) onRecordingComplete(audioBlob);
+                }}
+              >
+                업로드
+              </Button>
+              <Button variant="ghost" onClick={reset} size="sm">
+                다시 녹음
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -28,3 +28,22 @@ export async function processMeeting(meetingId: string): Promise<MeetingMinutes>
   );
   return data;
 }
+
+export function getRecordingDownloadUrl(meetingId: string | number): string {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : "";
+  return `${apiInstance.defaults.baseURL}/meetings/${meetingId}/download?token=${token}`;
+}
+
+export async function downloadRecording(meetingId: string | number, filename?: string): Promise<void> {
+  const { data } = await apiInstance.get(`/meetings/${meetingId}/download`, {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "recording";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}

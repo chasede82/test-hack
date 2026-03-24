@@ -13,6 +13,7 @@ import { getChannel } from "@/entities/channel/api/channelApi";
 import UploadRecordingModal from "@/features/upload-recording/ui/UploadRecordingModal";
 import { useUploadRecording } from "@/features/upload-recording/model/useUploadRecording";
 import AudioRecorder from "@/features/record-audio/ui/AudioRecorder";
+import { uploadRecording } from "@/features/upload-recording/api/uploadRecording";
 import Button from "@/shared/ui/Button";
 
 export default function ChannelDetailPage() {
@@ -25,6 +26,30 @@ export default function ChannelDetailPage() {
     "chat"
   );
   const { openModal } = useUploadRecording();
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleRecordingComplete = async (blob: Blob) => {
+    const title = prompt("회의 제목을 입력하세요");
+    if (!title) return;
+
+    const file = new File([blob], `recording-${Date.now()}.webm`, {
+      type: "audio/webm",
+    });
+
+    setIsUploading(true);
+    setUploadProgress(0);
+    try {
+      const result = await uploadRecording(channelId, title, file, (progress) => {
+        setUploadProgress(progress);
+      });
+      router.push(`/results/${result.meetingId}`);
+    } catch {
+      alert("업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,7 +142,26 @@ export default function ChannelDetailPage() {
                   <p className="mb-6 text-center text-sm text-gray-500">
                     브라우저 마이크를 사용하여 회의를 직접 녹음하세요
                   </p>
-                  <AudioRecorder />
+                  <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+                  {isUploading && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <span>업로드 중...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                        <div
+                          className="h-full rounded-full bg-blue-600 transition-all"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                      {uploadProgress === 100 && (
+                        <p className="text-center text-sm text-blue-600 font-medium">
+                          AI가 회의록을 생성하고 있습니다...
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

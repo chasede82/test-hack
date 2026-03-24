@@ -41,7 +41,7 @@ public class MeetingService {
     private String uploadDir;
 
     // 허용되는 파일 확장자
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("mp3", "mp4", "wav", "m4a");
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("mp3", "mp4", "wav", "m4a", "webm");
 
     /**
      * 녹음 파일 업로드 및 회의 생성

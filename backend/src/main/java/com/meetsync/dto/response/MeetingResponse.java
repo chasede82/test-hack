@@ -20,6 +20,7 @@ public class MeetingResponse {
     private MeetingStatus status;
     private Long channelId;
     private String createdByName;
+    private String recordingUrl;
     private LocalDateTime createdAt;
 
     public static MeetingResponse from(Meeting meeting) {
@@ -29,6 +30,7 @@ public class MeetingResponse {
                 .status(meeting.getStatus())
                 .channelId(meeting.getChannel().getId())
                 .createdByName(meeting.getCreatedBy().getName())
+                .recordingUrl(meeting.getRecordingUrl())
                 .createdAt(meeting.getCreatedAt())
                 .build();
     }

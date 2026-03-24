@@ -7,7 +7,7 @@ import Sidebar from "@/widgets/sidebar/ui/Sidebar";
 import MeetingMinutesViewer from "@/widgets/meeting-minutes-viewer/ui/MeetingMinutesViewer";
 import Badge from "@/shared/ui/Badge";
 import { Meeting } from "@/entities/meeting/model/types";
-import { getMeeting } from "@/entities/meeting/api/meetingApi";
+import { getMeeting, downloadRecording } from "@/entities/meeting/api/meetingApi";
 import { formatDateTime } from "@/shared/lib/formatDate";
 import { formatDuration } from "@/shared/lib/formatDuration";
 
@@ -75,6 +75,23 @@ export default function MeetingDetailPage() {
                     )}
                   </div>
                 </div>
+
+                {meeting.recordingUrl && (
+                  <div className="rounded-xl border border-gray-200 bg-white p-4">
+                    <h3 className="mb-2 text-sm font-semibold text-gray-700">녹음 파일</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500 truncate max-w-xs">
+                        {meeting.recordingUrl}
+                      </span>
+                      <button
+                        onClick={() => downloadRecording(meeting.id, meeting.recordingUrl)}
+                        className="ml-4 shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                      >
+                        다운로드
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {meeting.status === "PROCESSING" && (
                   <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center">
